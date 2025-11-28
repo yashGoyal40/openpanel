@@ -29,6 +29,10 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Install Python dependencies
+        run: |
+          pip3 install markdown
+
       - name: Package Helm Chart
         run: |
           helm package . --destination ./charts
@@ -36,6 +40,134 @@ jobs:
       - name: Generate Index
         run: |
           helm repo index ./charts --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+
+      - name: Create index.html from README
+        run: |
+          # Convert README.md to HTML using Python markdown
+          python3 << 'PYTHON_SCRIPT'
+          import markdown
+          
+          with open('README.md', 'r', encoding='utf-8') as f:
+              md_content = f.read()
+          
+          # Convert markdown to HTML with code block and table support
+          md = markdown.Markdown(extensions=['fenced_code', 'tables', 'nl2br'])
+          html_content = md.convert(md_content)
+          
+          with open('/tmp/readme.html', 'w', encoding='utf-8') as f:
+              f.write(html_content)
+          PYTHON_SCRIPT
+          
+          # Create index.html with styled content
+          cat > ./charts/index.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>OpenPanel Helm Chart Repository</title>
+            <meta name="go-import" content="github.com/${{ github.repository }} git https://github.com/${{ github.repository }}.git">
+            <style>
+              * { box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+                line-height: 1.6;
+                color: #24292e;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+              }
+              h1 {
+                color: #2664EB;
+                border-bottom: 2px solid #eaecef;
+                padding-bottom: 10px;
+                margin-top: 0;
+              }
+              h2 {
+                color: #2664EB;
+                border-bottom: 1px solid #eaecef;
+                padding-bottom: 8px;
+                margin-top: 30px;
+              }
+              h3 {
+                color: #2664EB;
+                margin-top: 24px;
+              }
+              code {
+                background: #f4f4f4;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                font-size: 85%;
+              }
+              pre {
+                background: #f6f8fa;
+                border: 1px solid #e1e4e8;
+                padding: 16px;
+                border-radius: 6px;
+                overflow-x: auto;
+                line-height: 1.45;
+              }
+              pre code {
+                background: transparent;
+                padding: 0;
+                border-radius: 0;
+              }
+              ul, ol {
+                padding-left: 30px;
+              }
+              li {
+                margin: 8px 0;
+              }
+              a {
+                color: #2664EB;
+                text-decoration: none;
+              }
+              a:hover {
+                text-decoration: underline;
+              }
+              blockquote {
+                border-left: 4px solid #dfe2e5;
+                padding-left: 16px;
+                color: #6a737d;
+                margin: 0;
+              }
+              .repo-header {
+                background: #f6f8fa;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                padding: 20px;
+                margin-bottom: 30px;
+              }
+              .repo-header h2 {
+                margin-top: 0;
+                border: none;
+                padding: 0;
+              }
+              .repo-header code {
+                background: #ffffff;
+                border: 1px solid #e1e4e8;
+                padding: 4px 8px;
+                display: block;
+                margin: 10px 0;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="repo-header">
+              <h2>📦 OpenPanel Helm Chart Repository</h2>
+              <p><strong>Add this repository:</strong></p>
+              <code>helm repo add openpanel https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}</code>
+              <code>helm repo update</code>
+              <p><strong>Install the chart:</strong></p>
+              <code>helm install openpanel openpanel/openpanel --namespace openpanel --create-namespace</code>
+              <p style="margin-bottom: 0;"><a href="index.yaml">View index.yaml</a> | <a href="https://github.com/${{ github.repository }}">View on GitHub</a></p>
+            </div>
+            $(cat /tmp/readme.html)
+          </body>
+          </html>
+          EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
