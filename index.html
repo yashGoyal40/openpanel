@@ -111,98 +111,336 @@
 <li>kubectl configured to access your cluster</li>
 </ul>
 <h2>Installation</h2>
-<h3>Quick Start</h3>
-<ol>
-<li>
-<p><strong>Clone or navigate to the chart directory:</strong><br />
-<code>bash
-   cd openpanel</code></p>
-</li>
-<li>
-<p><strong>Review and update <code>values.yaml</code></strong> with your configuration:</p>
-</li>
-<li>Update domain names</li>
-<li>Set PostgreSQL configuration (self-hosted or external)</li>
-<li>
-<p>Configure secrets (cookie secret, API keys, etc.)</p>
-</li>
-<li>
-<p><strong>Install the chart:</strong><br />
-<code>bash
-   helm install openpanel . --namespace openpanel --create-namespace</code></p>
-</li>
-</ol>
-<h3>Using External PostgreSQL</h3>
-<p>To use an external PostgreSQL database:</p>
-<ol>
-<li>Set <code>postgresql.enabled: false</code> in <code>values.yaml</code></li>
-<li>Configure <code>externalPostgresql</code> section:<br />
-<code>yaml
-   externalPostgresql:
-     host: "your-postgres-host"
-     port: 5432
-     user: postgres
-     password: "your-password"
-     database: openpanel
-     schema: public</code></li>
-</ol>
-<h3>Using Self-Hosted PostgreSQL</h3>
-<p>To deploy PostgreSQL in Kubernetes:</p>
-<ol>
-<li>Set <code>postgresql.enabled: true</code> in <code>values.yaml</code></li>
-<li>Configure PostgreSQL settings:<br />
-<code>yaml
-   postgresql:
-     enabled: true
-     user: postgres
-     password: "your-secure-password"
-     database: postgres
-     persistence:
-       size: 20Gi</code></li>
-</ol>
-<h2>Configuration</h2>
-<h3>Key Configuration Options</h3>
-<h4>PostgreSQL</h4>
-<ul>
-<li><code>postgresql.enabled</code>: Enable/disable self-hosted PostgreSQL</li>
-<li><code>externalPostgresql.*</code>: Configuration for external PostgreSQL</li>
-</ul>
-<h4>Redis</h4>
-<ul>
-<li><code>redis.enabled</code>: Enable/disable self-hosted Redis</li>
-<li><code>externalRedis.*</code>: Configuration for external Redis</li>
-</ul>
-<h4>ClickHouse</h4>
-<ul>
-<li><code>clickhouse.enabled</code>: Enable/disable self-hosted ClickHouse</li>
-<li><code>externalClickhouse.*</code>: Configuration for external ClickHouse</li>
-</ul>
-<h4>Ingress</h4>
-<ul>
-<li><code>ingress.enabled</code>: Enable/disable ingress</li>
-<li><code>ingress.type</code>: Choose <code>httpproxy</code> (Contour) or <code>standard</code> (nginx/traefik)</li>
-<li><code>ingress.fqdn</code>: Your domain name</li>
-</ul>
-<h4>Application Components</h4>
-<ul>
-<li><code>api.enabled</code>: Enable/disable API service</li>
-<li><code>dashboard.enabled</code>: Enable/disable Dashboard service</li>
-<li><code>worker.enabled</code>: Enable/disable Worker service</li>
-</ul>
-<h3>Required Secrets</h3>
-<p>Before installation, make sure to update these in <code>values.yaml</code>:</p>
-<ol>
-<li><strong>COOKIE_SECRET</strong>: Generate with <code>openssl rand -base64 32</code></li>
-<li><strong>Database passwords</strong>: Update PostgreSQL credentials</li>
-<li><strong>API keys</strong>: Configure email, AI, and OAuth keys as needed</li>
-</ol>
+<h3>Step 1: Add the Helm Repository</h3>
+<pre><code class="language-bash">helm repo add openpanel https://yashGoyal40.github.io/openpanel
+helm repo update
+</code></pre>
+<h3>Step 2: Configure Required Values</h3>
+<p><strong>⚠️ IMPORTANT:</strong> Before installing, you <strong>MUST</strong> configure the required values in <code>values.yaml</code>. The chart includes placeholder values (marked with <code>&lt;&gt;</code>) that will cause the installation to fail if not properly configured.</p>
+<p>Create a custom values file or download the default values:</p>
+<pre><code class="language-bash">helm show values openpanel/openpanel &gt; my-values.yaml
+</code></pre>
+<p>Then edit <code>my-values.yaml</code> with your configuration (see <a href="#required-configuration">Required Configuration</a> below).</p>
+<h3>Step 3: Install OpenPanel</h3>
+<pre><code class="language-bash">helm install my-openpanel openpanel/openpanel --version 0.1.0 --namespace openpanel --create-namespace -f my-values.yaml
+</code></pre>
+<p>Or if you want to override specific values directly:</p>
+<pre><code class="language-bash">helm install my-openpanel openpanel/openpanel --version 0.1.0 --namespace openpanel --create-namespace \
+  --set ingress.fqdn=your-domain.com \
+  --set config.apiUrl=https://your-domain.com/api \
+  --set secrets.cookieSecret=$(openssl rand -base64 32)
+</code></pre>
+<h2>Quick Start Example</h2>
+<p>Here's a minimal example configuration file (<code>my-values.yaml</code>) with all required values:</p>
+<pre><code class="language-yaml"># Ingress Configuration
+ingress:
+  enabled: true
+  type: standard  # or &quot;httpproxy&quot; for Contour
+  fqdn: analytics.example.com
+  standard:
+    tlsSecretName: openpanel-tls
+
+# Application URLs
+config:
+  apiUrl: &quot;https://analytics.example.com/api&quot;
+  dashboardUrl: &quot;https://analytics.example.com&quot;
+  googleRedirectUri: &quot;https://analytics.example.com/api/oauth/google/callback&quot;
+
+# Cookie Secret (generate with: openssl rand -base64 32)
+secrets:
+  cookieSecret: &quot;YOUR_GENERATED_SECRET_HERE&quot;
+
+# PostgreSQL - Using External Database
+postgresql:
+  enabled: false
+
+externalPostgresql:
+  host: &quot;postgres.example.com&quot;
+  port: 5432
+  user: &quot;openpanel&quot;
+  password: &quot;your-secure-password&quot;
+  database: &quot;openpanel&quot;
+  schema: public
+</code></pre>
+<p>Then install with:</p>
+<pre><code class="language-bash">helm install my-openpanel openpanel/openpanel --version 0.1.0 --namespace openpanel --create-namespace -f my-values.yaml
+</code></pre>
+<h2>Required Configuration</h2>
+<p>The following values <strong>MUST</strong> be configured before installation. These are marked with <code>&lt;&gt;</code> placeholders in the default <code>values.yaml</code> and will prevent the chart from working correctly if left unchanged.</p>
+<h3>1. Ingress Configuration (Required)</h3>
+<p>Configure your fully qualified domain name (FQDN) and TLS settings:</p>
+<pre><code class="language-yaml">ingress:
+  enabled: true
+  type: httpproxy  # or &quot;standard&quot; for nginx/traefik
+  fqdn: your-domain.com  # Replace &lt;fqdn&gt; with your actual domain
+
+  # For HTTPProxy (Contour)
+  httpproxy:
+    tlsSecretName: openpanel-tls  # Replace &lt;tls_secret_name&gt;
+
+  # For standard Ingress
+  standard:
+    tlsSecretName: openpanel-tls  # Replace &lt;tls_secret_name&gt;
+</code></pre>
+<p><strong>Examples:</strong><br />
+- <code>fqdn: analytics.example.com</code><br />
+- <code>tlsSecretName: openpanel-tls</code> (if using cert-manager, this will be auto-generated)</p>
+<h3>2. Application URLs (Required)</h3>
+<p>Configure the API and Dashboard URLs to match your ingress FQDN:</p>
+<pre><code class="language-yaml">config:
+  apiUrl: &quot;https://your-domain.com/api&quot;  # Replace &lt;fqdn&gt; with your domain
+  dashboardUrl: &quot;https://your-domain.com&quot;  # Replace &lt;fqdn&gt; with your domain
+  googleRedirectUri: &quot;https://your-domain.com/api/oauth/google/callback&quot;  # Replace &lt;fqdn&gt;
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-yaml">config:
+  apiUrl: &quot;https://analytics.example.com/api&quot;
+  dashboardUrl: &quot;https://analytics.example.com&quot;
+  googleRedirectUri: &quot;https://analytics.example.com/api/oauth/google/callback&quot;
+</code></pre>
+<h3>3. Cookie Secret (Required)</h3>
+<p>Generate a secure random string for session management:</p>
+<pre><code class="language-bash">openssl rand -base64 32
+</code></pre>
+<p>Then set it in <code>values.yaml</code>:</p>
+<pre><code class="language-yaml">secrets:
+  cookieSecret: &quot;YOUR_GENERATED_SECRET_HERE&quot;  # Replace CHANGE_ME_GENERATE_A_RANDOM_32_CHAR_STRING
+</code></pre>
+<p><strong>⚠️ Security Note:</strong> Never use the default value in production!</p>
+<h3>4. PostgreSQL Configuration (Required - Choose One)</h3>
+<h4>Option A: External PostgreSQL (Recommended for Production)</h4>
+<p>If you have an existing PostgreSQL database:</p>
+<pre><code class="language-yaml">postgresql:
+  enabled: false
+
+externalPostgresql:
+  host: &quot;postgres.example.com&quot;  # Replace &lt;postgres_host&gt;
+  port: 5432
+  user: &quot;openpanel&quot;  # Replace &lt;postgres_user&gt;
+  password: &quot;your-secure-password&quot;  # Replace &lt;postgres_password&gt;
+  database: &quot;openpanel&quot;  # Replace &lt;database_name&gt;
+  schema: public
+</code></pre>
+<h4>Option B: Self-Hosted PostgreSQL</h4>
+<p>To deploy PostgreSQL within Kubernetes:</p>
+<pre><code class="language-yaml">postgresql:
+  enabled: true
+  user: postgres
+  password: &quot;your-secure-password&quot;  # Change from default!
+  database: postgres
+  persistence:
+    size: 20Gi
+</code></pre>
+<p><strong>⚠️ Note:</strong> If using self-hosted PostgreSQL, you don't need to configure <code>externalPostgresql</code> section.</p>
+<h3>5. Optional: Email Configuration</h3>
+<p>If you want to enable email functionality (password resets, invitations, etc.):</p>
+<pre><code class="language-yaml">secrets:
+  resendApiKey: &quot;re_xxxxxxxxxxxxx&quot;  # Replace &lt;resend_api_key&gt; with your Resend API key
+  emailSender: &quot;noreply@your-domain.com&quot;  # Replace &lt;email_sender&gt; with your verified sender email
+</code></pre>
+<p><strong>Getting a Resend API Key:</strong><br />
+1. Sign up at <a href="https://resend.com">resend.com</a><br />
+2. Create an API key in the dashboard<br />
+3. Verify your sender email domain<br />
+4. Add the API key and sender email to your values</p>
+<h3>6. Optional: AI Features</h3>
+<p>If you want to enable AI-powered features:</p>
+<pre><code class="language-yaml">config:
+  aiModel: &quot;gpt-4o-mini&quot;  # Options: gpt-4o, gpt-4o-mini, claude-3-5
+
+secrets:
+  openaiApiKey: &quot;sk-xxxxxxxxxxxxx&quot;  # Replace &lt;openai_api_key&gt; for OpenAI models
+  anthropicApiKey: &quot;&quot;  # Leave empty if not using Anthropic/Claude models
+  geminiApiKey: &quot;&quot;  # Leave empty if not using Gemini models
+</code></pre>
+<p><strong>Important Notes:</strong><br />
+- You only need to configure the API key for the model you choose:<br />
+  - For <code>gpt-4o</code> or <code>gpt-4o-mini</code>: Configure <code>openaiApiKey</code><br />
+  - For <code>claude-3-5</code>: Configure <code>anthropicApiKey</code><br />
+- <strong>You can leave <code>anthropicApiKey</code> and <code>geminiApiKey</code> empty</strong> (as empty strings <code>""</code>) if you don't want to use those features<br />
+- Only configure the API keys for the AI providers you plan to use</p>
+<h3>7. Optional: Google OAuth</h3>
+<p>If you want to enable Google OAuth login:</p>
+<pre><code class="language-yaml">secrets:
+  googleClientId: &quot;xxxxx.apps.googleusercontent.com&quot;  # Replace &lt;google_client_id&gt;
+  googleClientSecret: &quot;GOCSPX-xxxxxxxxxxxxx&quot;  # Replace &lt;google_client_secret&gt;
+</code></pre>
+<p><strong>Setting up Google OAuth:</strong><br />
+1. Go to <a href="https://console.cloud.google.com">Google Cloud Console</a><br />
+2. Create a new OAuth 2.0 Client ID<br />
+3. Add authorized redirect URI: <code>https://your-domain.com/api/oauth/google/callback</code><br />
+4. Copy the Client ID and Client Secret to your values</p>
+<h2>Configuration Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Required</th>
+<th>Placeholder</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ingress.fqdn</code></td>
+<td>✅ Yes</td>
+<td><code>&lt;fqdn&gt;</code></td>
+<td>Your domain name</td>
+</tr>
+<tr>
+<td><code>ingress.*.tlsSecretName</code></td>
+<td>✅ Yes</td>
+<td><code>&lt;tls_secret_name&gt;</code></td>
+<td>TLS certificate secret name</td>
+</tr>
+<tr>
+<td><code>config.apiUrl</code></td>
+<td>✅ Yes</td>
+<td><code>&lt;fqdn&gt;</code></td>
+<td>Full API URL</td>
+</tr>
+<tr>
+<td><code>config.dashboardUrl</code></td>
+<td>✅ Yes</td>
+<td><code>&lt;fqdn&gt;</code></td>
+<td>Full Dashboard URL</td>
+</tr>
+<tr>
+<td><code>config.googleRedirectUri</code></td>
+<td>✅ Yes</td>
+<td><code>&lt;fqdn&gt;</code></td>
+<td>OAuth callback URL</td>
+</tr>
+<tr>
+<td><code>secrets.cookieSecret</code></td>
+<td>✅ Yes</td>
+<td><code>CHANGE_ME_...</code></td>
+<td>Session encryption key</td>
+</tr>
+<tr>
+<td><code>externalPostgresql.host</code></td>
+<td>⚠️ If external</td>
+<td><code>&lt;postgres_host&gt;</code></td>
+<td>PostgreSQL hostname</td>
+</tr>
+<tr>
+<td><code>externalPostgresql.user</code></td>
+<td>⚠️ If external</td>
+<td><code>&lt;postgres_user&gt;</code></td>
+<td>PostgreSQL username</td>
+</tr>
+<tr>
+<td><code>externalPostgresql.password</code></td>
+<td>⚠️ If external</td>
+<td><code>&lt;postgres_password&gt;</code></td>
+<td>PostgreSQL password</td>
+</tr>
+<tr>
+<td><code>externalPostgresql.database</code></td>
+<td>⚠️ If external</td>
+<td><code>&lt;database_name&gt;</code></td>
+<td>PostgreSQL database name</td>
+</tr>
+<tr>
+<td><code>secrets.resendApiKey</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;resend_api_key&gt;</code></td>
+<td>Resend API key for emails (leave empty <code>""</code> if not using)</td>
+</tr>
+<tr>
+<td><code>secrets.emailSender</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;email_sender&gt;</code></td>
+<td>Verified sender email (leave empty <code>""</code> if not using)</td>
+</tr>
+<tr>
+<td><code>secrets.openaiApiKey</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;openai_api_key&gt;</code></td>
+<td>OpenAI API key (leave empty <code>""</code> if not using OpenAI)</td>
+</tr>
+<tr>
+<td><code>secrets.anthropicApiKey</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;anthropic_api_key&gt;</code></td>
+<td>Anthropic API key (leave empty <code>""</code> if not using Anthropic/Claude)</td>
+</tr>
+<tr>
+<td><code>secrets.geminiApiKey</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;gemini_api_key&gt;</code></td>
+<td>Gemini API key (leave empty <code>""</code> if not using Gemini)</td>
+</tr>
+<tr>
+<td><code>secrets.googleClientId</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;google_client_id&gt;</code></td>
+<td>Google OAuth Client ID (leave empty <code>""</code> if not using)</td>
+</tr>
+<tr>
+<td><code>secrets.googleClientSecret</code></td>
+<td>❌ Optional</td>
+<td><code>&lt;google_client_secret&gt;</code></td>
+<td>Google OAuth Client Secret (leave empty <code>""</code> if not using)</td>
+</tr>
+</tbody>
+</table>
+<h2>Additional Configuration</h2>
+<h3>Redis Configuration</h3>
+<p>Redis is enabled by default and will be deployed within Kubernetes. To use an external Redis instance:</p>
+<pre><code class="language-yaml">redis:
+  enabled: false
+
+externalRedis:
+  host: &quot;redis.example.com&quot;  # Replace with your Redis host
+  port: 6379
+</code></pre>
+<h3>ClickHouse Configuration</h3>
+<p>ClickHouse is enabled by default and will be deployed within Kubernetes. To use an external ClickHouse instance:</p>
+<pre><code class="language-yaml">clickhouse:
+  enabled: false
+
+externalClickhouse:
+  host: &quot;clickhouse.example.com&quot;  # Replace with your ClickHouse host
+  port: 8123
+  database: openpanel
+</code></pre>
+<h3>Application Components</h3>
+<p>You can enable/disable individual components:</p>
+<pre><code class="language-yaml">api:
+  enabled: true
+  replicas: 1
+
+dashboard:
+  enabled: true
+  replicas: 1
+
+worker:
+  enabled: true
+  replicas: 1
+</code></pre>
+<h3>Resource Limits</h3>
+<p>Adjust resource requests and limits based on your cluster capacity:</p>
+<pre><code class="language-yaml">api:
+  resources:
+    requests:
+      memory: &quot;512Mi&quot;
+      cpu: &quot;250m&quot;
+    limits:
+      memory: &quot;2Gi&quot;
+      cpu: &quot;2000m&quot;
+</code></pre>
 <h2>Upgrading</h2>
-<pre><code class="language-bash">helm upgrade openpanel . --namespace openpanel
+<p>To upgrade to a newer version:</p>
+<pre><code class="language-bash">helm repo update
+helm upgrade my-openpanel openpanel/openpanel --version &lt;new-version&gt; --namespace openpanel -f my-values.yaml
 </code></pre>
+<p>Replace <code>&lt;new-version&gt;</code> with the desired version number (e.g., <code>0.1.1</code>).</p>
 <h2>Uninstallation</h2>
-<pre><code class="language-bash">helm uninstall openpanel --namespace openpanel
+<p>To uninstall OpenPanel:</p>
+<pre><code class="language-bash">helm uninstall my-openpanel --namespace openpanel
 </code></pre>
-<p><strong>Note:</strong> This will delete all resources including persistent volumes. Make sure to backup your data before uninstalling.</p>
+<p><strong>⚠️ Warning:</strong> This will delete all resources including persistent volumes. Make sure to backup your data before uninstalling.</p>
 <h2>Troubleshooting</h2>
 <h3>Check Pod Status</h3>
 <pre><code class="language-bash">kubectl get pods -n openpanel
