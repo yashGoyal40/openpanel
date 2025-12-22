@@ -34,9 +34,13 @@ spec:
       labels:
         app: op-api
     spec:
+{{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: api
-          image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+          image: {{ include "openpanel.image" (dict "root" . "image" .Values.api.image) }}
           ports:
             - containerPort: {{ .Values.api.service.port }}
               name: http
@@ -202,7 +206,7 @@ spec:
 {{- end }}
       initContainers:
         - name: wait-for-databases
-          image: busybox:1.36
+          image: {{ include "openpanel.image" (dict "root" . "image" (dict "repository" "busybox" "tag" "1.36")) }}
           command:
             - sh
             - -c
@@ -225,7 +229,7 @@ spec:
               # Note: PostgreSQL connection will be validated by the app
 {{- if .Values.clickhouse.enabled }}
         - name: wait-for-clickhouse-ready
-          image: busybox:1.36
+          image: {{ include "openpanel.image" (dict "root" . "image" (dict "repository" "busybox" "tag" "1.36")) }}
           command:
             - sh
             - -c

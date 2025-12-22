@@ -34,9 +34,13 @@ spec:
       labels:
         app: op-dashboard
     spec:
+{{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: dashboard
-          image: {{ .Values.dashboard.image.repository }}:{{ .Values.dashboard.image.tag }}
+          image: {{ include "openpanel.image" (dict "root" . "image" .Values.dashboard.image) }}
           ports:
             - containerPort: {{ .Values.dashboard.service.port }}
               name: http
@@ -112,7 +116,7 @@ spec:
 {{- end }}
       initContainers:
         - name: wait-for-api
-          image: busybox:1.36
+          image: {{ include "openpanel.image" (dict "root" . "image" (dict "repository" "busybox" "tag" "1.36")) }}
           command:
             - sh
             - -c

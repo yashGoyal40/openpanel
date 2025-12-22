@@ -97,9 +97,13 @@ spec:
       labels:
         app: op-ch
     spec:
+{{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: clickhouse
-          image: {{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}
+          image: {{ include "openpanel.image" (dict "root" . "image" .Values.clickhouse.image) }}
           ports:
             - containerPort: {{ .Values.clickhouse.service.httpPort }}
               name: http

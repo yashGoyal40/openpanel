@@ -34,9 +34,13 @@ spec:
       labels:
         app: op-worker
     spec:
+{{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: worker
-          image: {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
+          image: {{ include "openpanel.image" (dict "root" . "image" .Values.worker.image) }}
           ports:
             - containerPort: {{ .Values.worker.service.port }}
               name: http
@@ -104,7 +108,7 @@ spec:
 {{- end }}
       initContainers:
         - name: wait-for-api
-          image: busybox:1.36
+          image: {{ include "openpanel.image" (dict "root" . "image" (dict "repository" "busybox" "tag" "1.36")) }}
           command:
             - sh
             - -c

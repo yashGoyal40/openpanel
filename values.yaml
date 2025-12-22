@@ -1,6 +1,17 @@
 # Default values for openpanel
 # This is a YAML-formatted file.
 
+# Global configuration
+# Allows overriding container image registry and setting imagePullSecrets
+global:
+  # If set, prefixes all component images, e.g. "my-registry.example.com"
+  imageRegistry: ""
+  # List of imagePullSecrets to attach to all Pods
+  # Example:
+  # imagePullSecrets:
+  #   - name: my-regcred
+  imagePullSecrets: []
+
 # PostgreSQL Configuration
 # Set postgresql.enabled=true to deploy PostgreSQL in Kubernetes
 # Set postgresql.enabled=false to use external PostgreSQL

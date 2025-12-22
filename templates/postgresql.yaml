@@ -35,9 +35,13 @@ spec:
       labels:
         app: op-db
     spec:
+{{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: postgres
-          image: {{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}
+          image: {{ include "openpanel.image" (dict "root" . "image" .Values.postgresql.image) }}
           ports:
             - containerPort: {{ .Values.postgresql.service.port }}
               name: postgres
