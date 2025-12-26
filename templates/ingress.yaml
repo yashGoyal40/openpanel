@@ -22,13 +22,6 @@ spec:
     - host: {{ .Values.ingress.fqdn }}
       http:
         paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Values.api.service.name }}
-                port:
-                  number: {{ .Values.api.service.port }}
           - path: /
             pathType: Prefix
             backend:
@@ -36,4 +29,37 @@ spec:
                 name: {{ .Values.dashboard.service.name }}
                 port:
                   number: {{ .Values.dashboard.service.port }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openpanel-api-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: openpanel
+    component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+{{ toYaml .Values.ingress.standard.annotations | indent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.standard.className }}
+{{- if $tlsSecretName }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.fqdn }}
+      secretName: {{ $tlsSecretName }}
+{{- end }}
+  rules:
+    - host: {{ .Values.ingress.fqdn }}
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Values.api.service.name }}
+                port:
+                  number: {{ .Values.api.service.port }}
 {{- end }}

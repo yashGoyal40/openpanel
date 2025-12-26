@@ -340,7 +340,6 @@ ingress:
   standard:
     className: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Remove this if not using cert-manager
     # tlsSecretName: <tls_secret_name>  # Optional: Only needed for manual TLS certs. Leave empty/unset when using cert-manager/Let's Encrypt
