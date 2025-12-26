@@ -55,21 +55,6 @@ spec:
                 configMapKeyRef:
                   name: openpanel-config
                   key: SELF_HOSTED
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: openpanel-secrets
-                  key: DATABASE_URL
-            - name: REDIS_URL
-              valueFrom:
-                secretKeyRef:
-                  name: openpanel-secrets
-                  key: REDIS_URL
-            - name: CLICKHOUSE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: openpanel-secrets
-                  key: CLICKHOUSE_URL
             - name: API_URL
               valueFrom:
                 configMapKeyRef:
@@ -80,16 +65,6 @@ spec:
                 configMapKeyRef:
                   name: openpanel-config
                   key: DASHBOARD_URL
-            - name: NEXT_PUBLIC_DASHBOARD_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: openpanel-config
-                  key: DASHBOARD_URL
-            - name: NEXT_PUBLIC_API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: openpanel-config
-                  key: API_URL
           livenessProbe:
             httpGet:
               path: /api/healthcheck

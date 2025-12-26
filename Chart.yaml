@@ -2,8 +2,8 @@ apiVersion: v2
 name: openpanel
 description: A Helm chart for OpenPanel analytics platform
 type: application
-version: 0.9.0
-appVersion: "latest"
+version: 1.0.0
+appVersion: "2.0.0"
 keywords:
   - analytics
   - openpanel

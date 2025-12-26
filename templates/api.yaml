@@ -92,11 +92,6 @@ spec:
                 configMapKeyRef:
                   name: openpanel-config
                   key: DASHBOARD_URL
-            - name: NEXT_PUBLIC_DASHBOARD_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: openpanel-config
-                  key: DASHBOARD_URL
             - name: COOKIE_SECRET
               valueFrom:
                 secretKeyRef:

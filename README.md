@@ -32,13 +32,13 @@ Then edit `my-values.yaml` with your configuration (see [Required Configuration]
 ### Step 3: Install OpenPanel
 
 ```bash
-helm install my-openpanel openpanel/openpanel --version 0.6.0 --namespace openpanel --create-namespace -f my-values.yaml
+helm install my-openpanel openpanel/openpanel --version 1.0.0 --namespace openpanel --create-namespace -f my-values.yaml
 ```
 
 Or if you want to override specific values directly:
 
 ```bash
-helm install my-openpanel openpanel/openpanel --version 0.6.0 --namespace openpanel --create-namespace \
+helm install my-openpanel openpanel/openpanel --version 1.0.0 --namespace openpanel --create-namespace \
   --set ingress.fqdn=your-domain.com \
   --set config.apiUrl=https://your-domain.com/api \
   --set secrets.cookieSecret=$(openssl rand -base64 32)
@@ -86,7 +86,7 @@ externalPostgresql:
 Then install with:
 
 ```bash
-helm install my-openpanel openpanel/openpanel --version 0.6.0 --namespace openpanel --create-namespace -f my-values.yaml
+helm install my-openpanel openpanel/openpanel --namespace openpanel --create-namespace -f my-values.yaml
 ```
 
 ## Required Configuration
@@ -497,6 +497,8 @@ api:
 
 ## Upgrading
 
+### Upgrading to a newer version
+
 To upgrade to a newer version:
 
 ```bash
@@ -504,7 +506,7 @@ helm repo update
 helm upgrade my-openpanel openpanel/openpanel --version <new-version> --namespace openpanel -f my-values.yaml
 ```
 
-Replace `<new-version>` with the desired version number (e.g., `0.1.1`).
+Replace `<new-version>` with the desired version number (e.g., `1.0.1`).
 
 ## Uninstallation
 
