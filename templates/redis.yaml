@@ -41,7 +41,7 @@ spec:
 {{- end }}
       containers:
         - name: redis
-          image: {{ if .Values.global.registry }}{{ .Values.global.registry }}/{{ end }}{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          image: {{ if .Values.global.imageRegistry }}{{ .Values.global.imageRegistry }}/{{ end }}{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
           ports:
             - containerPort: {{ .Values.redis.service.port }}
               name: redis

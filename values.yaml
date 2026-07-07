@@ -11,6 +11,10 @@ global:
   # imagePullSecrets:
   #   - name: my-regcred
   imagePullSecrets: []
+  # Init container image used for readiness checks (wait-for-* containers)
+  initContainer:
+    repository: busybox
+    tag: "1.36"
 
 # PostgreSQL Configuration
 # Set postgresql.enabled=true to deploy PostgreSQL in Kubernetes

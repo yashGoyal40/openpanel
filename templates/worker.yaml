@@ -40,7 +40,7 @@ spec:
 {{- end }}
       containers:
         - name: worker
-          image: {{ if .Values.global.registry }}{{ .Values.global.registry }}/{{ end }}{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
+          image: {{ if .Values.global.imageRegistry }}{{ .Values.global.imageRegistry }}/{{ end }}{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}
           ports:
             - containerPort: {{ .Values.worker.service.port }}
               name: http
@@ -108,7 +108,7 @@ spec:
 {{- end }}
       initContainers:
         - name: wait-for-api
-          image: busybox:1.36
+          image: {{ if .Values.global.imageRegistry }}{{ .Values.global.imageRegistry }}/{{ end }}{{ .Values.global.initContainer.repository }}:{{ .Values.global.initContainer.tag }}
           command:
             - sh
             - -c
