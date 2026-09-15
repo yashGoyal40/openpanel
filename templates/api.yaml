@@ -154,21 +154,19 @@ spec:
                   key: AI_MODEL
                   optional: true
 {{- end }}
-{{- if .Values.secrets.googleClientId }}
+{{- if or .Values.secrets.googleExistingSecret .Values.secrets.googleClientId }}
             - name: GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: openpanel-secrets
-                  key: GOOGLE_CLIENT_ID
-                  optional: true
+                  name: {{ default "openpanel-secrets" .Values.secrets.googleExistingSecret | quote }}
+                  key: {{ default "GOOGLE_CLIENT_ID" .Values.secrets.googleClientIdKey | quote }}
 {{- end }}
-{{- if .Values.secrets.googleClientSecret }}
+{{- if or .Values.secrets.googleExistingSecret .Values.secrets.googleClientSecret }}
             - name: GOOGLE_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: openpanel-secrets
-                  key: GOOGLE_CLIENT_SECRET
-                  optional: true
+                  name: {{ default "openpanel-secrets" .Values.secrets.googleExistingSecret | quote }}
+                  key: {{ default "GOOGLE_CLIENT_SECRET" .Values.secrets.googleClientSecretKey | quote }}
 {{- end }}
 {{- if .Values.config.googleRedirectUri }}
             - name: GOOGLE_REDIRECT_URI
