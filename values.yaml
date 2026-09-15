@@ -325,6 +325,11 @@ secrets:
   # Google OAuth (optional)
   googleClientId: "<google_client_id>"
   googleClientSecret: "<google_client_secret>"
+  # Reference Google OAuth credentials from an existing Secret instead of
+  # storing them in Helm values and release history.
+  googleExistingSecret: ""
+  googleClientIdKey: "GOOGLE_CLIENT_ID"
+  googleClientSecretKey: "GOOGLE_CLIENT_SECRET"
 
 # Ingress Configuration
 ingress:

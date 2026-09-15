@@ -249,6 +249,26 @@ secrets:
   googleClientSecret: "GOCSPX-xxxxxxxxxxxxx"  # Replace <google_client_secret>
 ```
 
+To keep credentials out of Helm values and release history, create a Secret
+separately and reference it:
+
+```bash
+kubectl create secret generic openpanel-google-oauth \
+  --namespace openpanel \
+  --from-literal=GOOGLE_CLIENT_ID='xxxxx.apps.googleusercontent.com' \
+  --from-literal=GOOGLE_CLIENT_SECRET='GOCSPX-xxxxxxxxxxxxx'
+```
+
+```yaml
+secrets:
+  googleClientId: ""
+  googleClientSecret: ""
+  googleExistingSecret: openpanel-google-oauth
+  # Override these only if your Secret uses different key names.
+  googleClientIdKey: GOOGLE_CLIENT_ID
+  googleClientSecretKey: GOOGLE_CLIENT_SECRET
+```
+
 **Setting up Google OAuth:**
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new OAuth 2.0 Client ID
@@ -276,6 +296,9 @@ secrets:
 | `secrets.geminiApiKey` | ❌ Optional | `<gemini_api_key>` | Gemini API key (leave empty `""` if not using Gemini) |
 | `secrets.googleClientId` | ❌ Optional | `<google_client_id>` | Google OAuth Client ID (leave empty `""` if not using) |
 | `secrets.googleClientSecret` | ❌ Optional | `<google_client_secret>` | Google OAuth Client Secret (leave empty `""` if not using) |
+| `secrets.googleExistingSecret` | ❌ Optional | `""` | Existing Secret containing Google OAuth credentials; takes precedence over inline values |
+| `secrets.googleClientIdKey` | ❌ Optional | `GOOGLE_CLIENT_ID` | Client ID key in `googleExistingSecret` |
+| `secrets.googleClientSecretKey` | ❌ Optional | `GOOGLE_CLIENT_SECRET` | Client secret key in `googleExistingSecret` |
 
 ## Additional Configuration
 
