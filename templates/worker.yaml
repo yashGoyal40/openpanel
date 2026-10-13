@@ -106,6 +106,10 @@ spec:
       affinity:
 {{ toYaml .Values.worker.affinity | indent 8 }}
 {{- end }}
+{{- with .Values.worker.podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
+{{- end }}
       initContainers:
         - name: wait-for-api
           image: busybox:1.36

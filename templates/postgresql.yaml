@@ -81,6 +81,10 @@ spec:
       affinity:
 {{ toYaml .Values.postgresql.affinity | indent 8 }}
 {{- end }}
+{{- with .Values.postgresql.podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- if .Values.postgresql.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

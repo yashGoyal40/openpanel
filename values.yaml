@@ -55,6 +55,12 @@ postgresql:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: { }
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
 
 # External PostgreSQL Configuration (when postgresql.enabled=false)
 externalPostgresql:
@@ -103,6 +109,12 @@ redis:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: {}
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
 
 # External Redis Configuration (when redis.enabled=false)
 externalRedis:
@@ -150,6 +162,12 @@ clickhouse:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: { }
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
 
 # External ClickHouse Configuration (when clickhouse.enabled=false)
 externalClickhouse:
@@ -193,6 +211,12 @@ api:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: { }
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
   # Horizontal Pod Autoscaler (HPA) configuration
   hpa:
     enabled: false
@@ -237,6 +261,12 @@ dashboard:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: { }
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
   # Horizontal Pod Autoscaler (HPA) configuration
   hpa:
     enabled: false
@@ -281,6 +311,12 @@ worker:
   #           operator: In
   #           values:
   #           - openpanel
+  securityContext: { }
+  #  privileged: false
+  #  allowPrivilegeEscalation: false
+  #  capabilities:
+  #    drop: [ ALL ]
+  #  readOnlyRootFilesystem: true
   # Horizontal Pod Autoscaler (HPA) configuration
   hpa:
     enabled: false
