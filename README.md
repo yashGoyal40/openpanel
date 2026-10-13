@@ -495,6 +495,20 @@ api:
 - `podAffinity` - Schedule pods together with other pods matching certain labels
 - `podAntiAffinity` - Avoid scheduling pods together with other pods matching certain labels
 
+### Pod Security Context
+
+You can configure security context for pods and containers to enforce security policies:
+
+```yaml
+# Example: Set security context for API pods
+api:
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ ALL ]
+    readOnlyRootFilesystem: true
+
 ## Upgrading
 
 To upgrade to a newer version:
